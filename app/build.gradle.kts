@@ -27,6 +27,8 @@ base {
     archivesName = "gallery-$versionCode"
 }
 
+val armv8Only = project.hasProperty("armv8Only")
+
 android {
     compileSdk = project.libs.versions.app.build.compileSDKVersion.get().toInt()
 
@@ -36,6 +38,11 @@ android {
         targetSdk = project.libs.versions.app.build.targetSDK.get().toInt()
         versionName = project.property("VERSION_NAME").toString()
         versionCode = project.property("VERSION_CODE").toString().toInt()
+        if (armv8Only) {
+            ndk {
+                abiFilters.add("arm64-v8a")
+            }
+        }
     }
 
     signingConfigs {
