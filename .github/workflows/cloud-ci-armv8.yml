@@ -32,7 +32,7 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-36'
 
-      - name: Check & decode signing keystore
+      - name: Prepare signing keystore (optional)
         env:
           SIGNING_KEY_BASE64: ${{ secrets.SIGNING_KEY_BASE64 }}
           KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
@@ -40,7 +40,11 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           if [ -z "${SIGNING_KEY_BASE64:-}" ]; then
-            echo "::error::Signing secrets are not configured. Set SIGNING_KEY_BASE64, KEY_STORE_PASSWORD, KEY_ALIAS and KEY_PASSWORD to produce a signed APK."
+            echo "::warning::Signing secrets are not configured; building an UNSIGNED APK."
+            exit 0
+          fi
+          if [ -z "${KEY_STORE_PASSWORD:-}" ] || [ -z "${KEY_ALIAS:-}" ] || [ -z "${KEY_PASSWORD:-}" ]; then
+            echo "::error::SIGNING_KEY_BASE64 is set but KEY_STORE_PASSWORD/KEY_ALIAS/KEY_PASSWORD are missing; cannot sign the APK."
             exit 1
           fi
           echo "${SIGNING_KEY_BASE64}" | base64 -d > keystore.jks
