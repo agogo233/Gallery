@@ -22,6 +22,8 @@ import org.fossify.gallery.helpers.PATH
 import org.fossify.gallery.helpers.SHOW_ALL
 import org.fossify.gallery.helpers.VIDEO_PLAYER_APP
 import org.fossify.gallery.helpers.VIDEO_PLAYER_SYSTEM
+import org.fossify.gallery.helpers.isMedia1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.interfaces.MediaOperationsListener
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
@@ -160,7 +162,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     private fun itemClicked(path: String) {
-        if (!path.isVideoFast()) {
+        if (!(if (config.useSuffixOneExtensions) path.isVideo1() else path.isVideoFast())) {
             openInViewPager(path)
             return
         }
@@ -253,7 +255,7 @@ class SearchActivity : SimpleActivity(), MediaOperationsListener {
     }
 
     override fun tryDeleteFiles(fileDirItems: ArrayList<FileDirItem>, skipRecycleBin: Boolean) {
-        val filtered = fileDirItems.filter { File(it.path).isFile && it.path.isMediaFile() } as ArrayList
+        val filtered = fileDirItems.filter { File(it.path).isFile && (if (config.useSuffixOneExtensions) it.path.isMedia1() else it.path.isMediaFile()) } as ArrayList
         if (filtered.isEmpty()) {
             return
         }

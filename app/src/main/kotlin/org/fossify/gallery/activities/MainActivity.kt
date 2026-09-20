@@ -140,6 +140,12 @@ import org.fossify.gallery.helpers.TYPE_VIDEOS
 import org.fossify.gallery.helpers.getDefaultFileFilter
 import org.fossify.gallery.helpers.getPermissionToRequest
 import org.fossify.gallery.helpers.getPermissionsToRequest
+import org.fossify.gallery.helpers.isGif1
+import org.fossify.gallery.helpers.isImage1
+import org.fossify.gallery.helpers.isMedia1
+import org.fossify.gallery.helpers.isRaw1
+import org.fossify.gallery.helpers.isSvg1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.interfaces.DirectoryOperationsListener
 import org.fossify.gallery.jobs.NewPhotoFetcher
 import org.fossify.gallery.models.Directory
@@ -776,16 +782,17 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
         val itemsToDelete = ArrayList<FileDirItem>()
         val filter = config.filterMedia
         val showHidden = config.shouldShowHidden
+        val useSuffix1 = config.useSuffixOneExtensions
         fileDirItems.filter { it.isDirectory }.forEach {
             val files = File(it.path).listFiles()
             files?.filter {
-                it.absolutePath.isMediaFile()
+                (if (useSuffix1) it.absolutePath.isMedia1() else it.absolutePath.isMediaFile())
                         && (showHidden || !it.name.startsWith('.'))
-                        && ((it.isImageFast() && filter and TYPE_IMAGES != 0)
-                        || (it.isVideoFast() && filter and TYPE_VIDEOS != 0)
-                        || (it.isGif() && filter and TYPE_GIFS != 0)
-                        || (it.isRawFast() && filter and TYPE_RAWS != 0)
-                        || (it.isSvg() && filter and TYPE_SVGS != 0))
+                        && (((if (useSuffix1) it.isImage1() else it.isImageFast()) && filter and TYPE_IMAGES != 0)
+                        || ((if (useSuffix1) it.isVideo1() else it.isVideoFast()) && filter and TYPE_VIDEOS != 0)
+                        || ((if (useSuffix1) it.isGif1() else it.isGif()) && filter and TYPE_GIFS != 0)
+                        || ((if (useSuffix1) it.isRaw1() else it.isRawFast()) && filter and TYPE_RAWS != 0)
+                        || ((if (useSuffix1) it.isSvg1() else it.isSvg()) && filter and TYPE_SVGS != 0))
             }?.mapTo(itemsToDelete) { it.toFileDirItem(applicationContext) }
         }
 
@@ -1562,7 +1569,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
 
                 val hasMediaFile = children?.any {
                     it != null && (
-                            it.isMediaFile()
+                            (if (config.useSuffixOneExtensions) it.isMedia1() else it.isMediaFile())
                                     || (it.startsWith("img_", true)
                                     && File(it).isDirectory)
                             )
@@ -1714,7 +1721,7 @@ class MainActivity : SimpleActivity(), DirectoryOperationsListener {
                 for (file in files) {
                     if (file.isDirectory && !file.startsWith("${config.internalStoragePath}/Android")) {
                         folders.addAll(getFoldersWithMedia(file.absolutePath))
-                    } else if (file.isFile && file.isMediaFile()) {
+                    } else if (file.isFile && (if (config.useSuffixOneExtensions) file.isMedia1() else file.isMediaFile())) {
                         folders.add(file.parent ?: "")
                         break
                     }

@@ -62,6 +62,7 @@ class SettingsActivity : SimpleActivity() {
         setupManageHiddenFolders()
         setupSearchAllFiles()
         setupShowHiddenItems()
+        setupUseSuffixOneExtensions()
         setupAutoplayVideos()
         setupRememberLastVideo()
         setupLoopVideos()
@@ -258,6 +259,14 @@ class SettingsActivity : SimpleActivity() {
     private fun toggleHiddenItems() {
         binding.settingsShowHiddenItems.toggle()
         config.showHiddenMedia = binding.settingsShowHiddenItems.isChecked
+    }
+
+    private fun setupUseSuffixOneExtensions() {
+        binding.settingsUseSuffix1Extensions.isChecked = config.useSuffixOneExtensions
+        binding.settingsUseSuffix1ExtensionsHolder.setOnClickListener {
+            binding.settingsUseSuffix1Extensions.toggle()
+            config.useSuffixOneExtensions = binding.settingsUseSuffix1Extensions.isChecked
+        }
     }
 
     private fun setupSearchAllFiles() {

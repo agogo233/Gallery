@@ -103,6 +103,12 @@ import org.fossify.gallery.helpers.TYPE_IMAGES
 import org.fossify.gallery.helpers.TYPE_RAWS
 import org.fossify.gallery.helpers.TYPE_SVGS
 import org.fossify.gallery.helpers.TYPE_VIDEOS
+import org.fossify.gallery.helpers.isGif1
+import org.fossify.gallery.helpers.isImage1
+import org.fossify.gallery.helpers.isMedia1
+import org.fossify.gallery.helpers.isRaw1
+import org.fossify.gallery.helpers.isSvg1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.interfaces.DirectoryOperationsListener
 import org.fossify.gallery.models.AlbumCover
 import org.fossify.gallery.models.Directory
@@ -589,16 +595,17 @@ class DirectoryAdapter(
     private fun copyMoveTo(selectedPaths: Collection<String>, isCopyOperation: Boolean) {
         val paths = ArrayList<String>()
         val showHidden = config.shouldShowHidden
+        val useSuffix1 = config.useSuffixOneExtensions
         selectedPaths.forEach {
             val filter = config.filterMedia
             File(it).listFiles()?.filter {
                 !File(it.absolutePath).isDirectory &&
-                    it.absolutePath.isMediaFile() && (showHidden || !it.name.startsWith('.')) &&
-                    ((it.isImageFast() && filter and TYPE_IMAGES != 0) ||
-                        (it.isVideoFast() && filter and TYPE_VIDEOS != 0) ||
-                        (it.isGif() && filter and TYPE_GIFS != 0) ||
-                        (it.isRawFast() && filter and TYPE_RAWS != 0) ||
-                        (it.isSvg() && filter and TYPE_SVGS != 0))
+                    (if (useSuffix1) it.absolutePath.isMedia1() else it.absolutePath.isMediaFile()) && (showHidden || !it.name.startsWith('.')) &&
+                    (((if (useSuffix1) it.isImage1() else it.isImageFast()) && filter and TYPE_IMAGES != 0) ||
+                        ((if (useSuffix1) it.isVideo1() else it.isVideoFast()) && filter and TYPE_VIDEOS != 0) ||
+                        ((if (useSuffix1) it.isGif1() else it.isGif()) && filter and TYPE_GIFS != 0) ||
+                        ((if (useSuffix1) it.isRaw1() else it.isRawFast()) && filter and TYPE_RAWS != 0) ||
+                        ((if (useSuffix1) it.isSvg1() else it.isSvg()) && filter and TYPE_SVGS != 0))
             }?.mapTo(paths) { it.absolutePath }
         }
 
@@ -837,10 +844,10 @@ class DirectoryAdapter(
         bindItem(view).apply {
             dirPath?.text = "${directory.path.substringBeforeLast("/")}/"
             val thumbnailType = when {
-                directory.tmb.isVideoFast() -> TYPE_VIDEOS
-                directory.tmb.isGif() -> TYPE_GIFS
-                directory.tmb.isRawFast() -> TYPE_RAWS
-                directory.tmb.isSvg() -> TYPE_SVGS
+                (if (config.useSuffixOneExtensions) directory.tmb.isVideo1() else directory.tmb.isVideoFast()) -> TYPE_VIDEOS
+                (if (config.useSuffixOneExtensions) directory.tmb.isGif1() else directory.tmb.isGif()) -> TYPE_GIFS
+                (if (config.useSuffixOneExtensions) directory.tmb.isRaw1() else directory.tmb.isRawFast()) -> TYPE_RAWS
+                (if (config.useSuffixOneExtensions) directory.tmb.isSvg1() else directory.tmb.isSvg()) -> TYPE_SVGS
                 else -> TYPE_IMAGES
             }
 

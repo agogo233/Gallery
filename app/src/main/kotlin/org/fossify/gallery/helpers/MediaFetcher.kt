@@ -92,10 +92,11 @@ class MediaFetcher(val context: Context) {
             ).filter { context.getDoesFilePathExist(it, OTGPath) })
 
             val filterMedia = context.config.filterMedia
+            val useSuffix1 = context.config.useSuffixOneExtensions
             val uri = Files.getContentUri("external")
             val projection = arrayOf(Images.Media.DATA)
-            val selection = getSelectionQuery(filterMedia)
-            val selectionArgs = getSelectionArgsQuery(filterMedia).toTypedArray()
+            val selection = getSelectionQuery(filterMedia, useSuffix1)
+            val selectionArgs = getSelectionArgsQuery(filterMedia, useSuffix1).toTypedArray()
             val cursor = context.contentResolver.query(uri, projection, selection, selectionArgs, null)
             folders.addAll(parseCursor(cursor!!))
 
@@ -176,10 +177,10 @@ class MediaFetcher(val context: Context) {
         return parents
     }
 
-    private fun getSelectionQuery(filterMedia: Int): String {
+    private fun getSelectionQuery(filterMedia: Int, useSuffix1: Boolean): String {
         val query = StringBuilder()
         if (filterMedia and TYPE_IMAGES != 0) {
-            photoExtensions.forEach {
+            (if (useSuffix1) imageExtensions1 else photoExtensions).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
@@ -190,7 +191,7 @@ class MediaFetcher(val context: Context) {
         }
 
         if (filterMedia and TYPE_VIDEOS != 0) {
-            videoExtensions.forEach {
+            (if (useSuffix1) videoExtensions1 else videoExtensions).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
@@ -200,7 +201,7 @@ class MediaFetcher(val context: Context) {
         }
 
         if (filterMedia and TYPE_RAWS != 0) {
-            rawExtensions.forEach {
+            (if (useSuffix1) rawExtensions1 else rawExtensions).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
@@ -212,7 +213,11 @@ class MediaFetcher(val context: Context) {
         return query.toString().trim().removeSuffix("OR")
     }
 
-    private fun getSelectionArgsQuery(filterMedia: Int): ArrayList<String> {
+    private fun getSelectionArgsQuery(filterMedia: Int, useSuffix1: Boolean): ArrayList<String> {
+        if (useSuffix1) {
+            return getSelectionArgsQuery1(filterMedia)
+        }
+
         val args = ArrayList<String>()
         if (filterMedia and TYPE_IMAGES != 0) {
             photoExtensions.forEach {
@@ -298,6 +303,7 @@ class MediaFetcher(val context: Context) {
         }
 
         val config = context.config
+        val useSuffix1 = config.useSuffixOneExtensions
         val checkProperFileSize = getProperFileSize || config.fileLoadingPriority == PRIORITY_COMPROMISE
         val checkFileExistence = config.fileLoadingPriority == PRIORITY_VALIDITY
         val showHidden = config.shouldShowHidden
@@ -318,11 +324,11 @@ class MediaFetcher(val context: Context) {
 
             var path = file.absolutePath
             var isPortrait = false
-            val isImage = path.isImageFast()
-            val isVideo = if (isImage) false else path.isVideoFast()
-            val isGif = if (isImage || isVideo) false else path.isGif()
-            val isRaw = if (isImage || isVideo || isGif) false else path.isRawFast()
-            val isSvg = if (isImage || isVideo || isGif || isRaw) false else path.isSvg()
+            val isImage = if (useSuffix1) path.isImage1() else path.isImageFast()
+            val isVideo = if (isImage) false else if (useSuffix1) path.isVideo1() else path.isVideoFast()
+            val isGif = if (isImage || isVideo) false else if (useSuffix1) path.isGif1() else path.isGif()
+            val isRaw = if (isImage || isVideo || isGif) false else if (useSuffix1) path.isRaw1() else path.isRawFast()
+            val isSvg = if (isImage || isVideo || isGif || isRaw) false else if (useSuffix1) path.isSvg1() else path.isSvg()
 
             if (!isImage && !isVideo && !isGif && !isRaw && !isSvg) {
                 if (showPortraits && file.name.startsWith("img_", true) && file.isDirectory) {
@@ -452,6 +458,7 @@ class MediaFetcher(val context: Context) {
         )
 
         val uri = Files.getContentUri("external")
+        val useSuffix1 = context.config.useSuffixOneExtensions
 
         context.queryCursor(uri, projection) { cursor ->
             if (shouldStop) {
@@ -467,11 +474,11 @@ class MediaFetcher(val context: Context) {
                 }
 
                 val isPortrait = false
-                val isImage = path.isImageFast()
-                val isVideo = if (isImage) false else path.isVideoFast()
-                val isGif = if (isImage || isVideo) false else path.isGif()
-                val isRaw = if (isImage || isVideo || isGif) false else path.isRawFast()
-                val isSvg = if (isImage || isVideo || isGif || isRaw) false else path.isSvg()
+                val isImage = if (useSuffix1) path.isImage1() else path.isImageFast()
+                val isVideo = if (isImage) false else if (useSuffix1) path.isVideo1() else path.isVideoFast()
+                val isGif = if (isImage || isVideo) false else if (useSuffix1) path.isGif1() else path.isGif()
+                val isRaw = if (isImage || isVideo || isGif) false else if (useSuffix1) path.isRaw1() else path.isRawFast()
+                val isSvg = if (isImage || isVideo || isGif || isRaw) false else if (useSuffix1) path.isSvg1() else path.isSvg()
 
                 if (!isImage && !isVideo && !isGif && !isRaw && !isSvg) {
                     return@queryCursor
@@ -547,6 +554,7 @@ class MediaFetcher(val context: Context) {
         val checkFileExistence = context.config.fileLoadingPriority == PRIORITY_VALIDITY
         val showHidden = context.config.shouldShowHidden
         val OTGPath = context.config.OTGPath
+        val useSuffix1 = context.config.useSuffixOneExtensions
 
         for (file in files) {
             if (shouldStop) {
@@ -554,11 +562,11 @@ class MediaFetcher(val context: Context) {
             }
 
             val filename = file.name ?: continue
-            val isImage = filename.isImageFast()
-            val isVideo = if (isImage) false else filename.isVideoFast()
-            val isGif = if (isImage || isVideo) false else filename.isGif()
-            val isRaw = if (isImage || isVideo || isGif) false else filename.isRawFast()
-            val isSvg = if (isImage || isVideo || isGif || isRaw) false else filename.isSvg()
+            val isImage = if (useSuffix1) filename.isImage1() else filename.isImageFast()
+            val isVideo = if (isImage) false else if (useSuffix1) filename.isVideo1() else filename.isVideoFast()
+            val isGif = if (isImage || isVideo) false else if (useSuffix1) filename.isGif1() else filename.isGif()
+            val isRaw = if (isImage || isVideo || isGif) false else if (useSuffix1) filename.isRaw1() else filename.isRawFast()
+            val isSvg = if (isImage || isVideo || isGif || isRaw) false else if (useSuffix1) filename.isSvg1() else filename.isSvg()
 
             if (!isImage && !isVideo && !isGif && !isRaw && !isSvg)
                 continue

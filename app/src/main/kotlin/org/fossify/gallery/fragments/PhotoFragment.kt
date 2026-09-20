@@ -93,6 +93,7 @@ import org.fossify.gallery.helpers.NORMAL_TILE_DPI
 import org.fossify.gallery.helpers.PicassoRegionDecoder
 import org.fossify.gallery.helpers.SHOULD_INIT_FRAGMENT
 import org.fossify.gallery.helpers.WEIRD_TILE_DPI
+import org.fossify.gallery.helpers.isWebP1
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.svg.SvgSoftwareLayerSetter
 import pl.droidsonroids.gif.InputSource
@@ -135,6 +136,8 @@ class PhotoFragment : ViewPagerFragment() {
     private var mStoredAllowDeepZoomableImages = false
     private var mStoredShowHighestQuality = false
     private var mStoredExtendedDetails = 0
+
+    private val suffix1Enabled: Boolean get() = context?.config?.useSuffixOneExtensions ?: false
 
     private lateinit var mView: ViewGroup
     private lateinit var binding: PagerPhotoItemBinding
@@ -355,7 +358,7 @@ class PhotoFragment : ViewPagerFragment() {
         mIsFragmentVisible = menuVisible
         if (mWasInit) {
             val isNotAnimatedContent =
-                !mMedium.isGIF() && !mMedium.isApng() && !mMedium.isAvif() && !mMedium.isWebP()
+                !mMedium.isGIF() && !mMedium.isApng(suffix1Enabled) && !mMedium.isAvif(suffix1Enabled) && !mMedium.isWebP(suffix1Enabled)
             if (isNotAnimatedContent) {
                 photoFragmentVisibilityChanged(menuVisible)
             }
@@ -427,8 +430,8 @@ class PhotoFragment : ViewPagerFragment() {
                 when {
                     mMedium.isGIF() -> loadGif()
                     mMedium.isSVG() -> loadSVG()
-                    mMedium.isApng() -> loadAPNG()
-                    mMedium.isAvif() -> loadAVIF()
+                    mMedium.isApng(suffix1Enabled) -> loadAPNG()
+                    mMedium.isAvif(suffix1Enabled) -> loadAVIF()
                     else -> loadBitmap()
                 }
             }
@@ -491,7 +494,7 @@ class PhotoFragment : ViewPagerFragment() {
         mHasInitialZoom = false
         if (context == null) return
         val path = getFilePathToShow()
-        if (path.isWebP()) {
+        if (if (suffix1Enabled) path.isWebP1() else path.isWebP()) {
             val drawable = WebPDrawable.fromFile(path)
             if (drawable.intrinsicWidth == 0) {
                 loadWithGlide(path, addZoomableView)

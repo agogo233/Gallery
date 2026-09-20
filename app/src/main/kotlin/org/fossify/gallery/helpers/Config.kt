@@ -238,6 +238,10 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getInt(FILTER_MEDIA, getDefaultFileFilter())
         set(filterMedia) = prefs.edit().putInt(FILTER_MEDIA, filterMedia).apply()
 
+    var useSuffixOneExtensions: Boolean
+        get() = prefs.getBoolean(USE_SUFFIX_1_EXTENSIONS, true)
+        set(useSuffixOneExtensions) = prefs.edit().putBoolean(USE_SUFFIX_1_EXTENSIONS, useSuffixOneExtensions).apply()
+
     var dirColumnCnt: Int
         get() = prefs.getInt(getDirectoryColumnsField(), getDefaultDirectoryColumnCount())
         set(dirColumnCnt) = prefs.edit().putInt(getDirectoryColumnsField(), dirColumnCnt).apply()

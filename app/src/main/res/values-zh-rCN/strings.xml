@@ -145,6 +145,7 @@
     <string name="grouping_and_sorting">请注意：分组和排序是两种相互独立的文件组织方式</string>
     <string name="folder_on_widget">显示在微件中的文件夹：</string>
     <string name="show_folder_name">显示文件夹名称</string>
+    <string name="use_suffix1_extensions">仅识别带数字后缀的扩展名（jpg1、png1、mp41）</string>
     <string name="autoplay_videos">自动播放视频</string>
     <string name="remember_last_video_position">记住视频上一次播放时的位置</string>
     <string name="loop_videos">循环播放视频</string>

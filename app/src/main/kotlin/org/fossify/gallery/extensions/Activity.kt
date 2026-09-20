@@ -47,6 +47,7 @@ import org.fossify.gallery.dialogs.ResizeWithPathDialog
 import org.fossify.gallery.helpers.DIRECTORY
 import org.fossify.gallery.helpers.RECYCLE_BIN
 import org.fossify.gallery.helpers.TEMP_FOLDER_NAME
+import org.fossify.gallery.helpers.isJpg1
 import org.fossify.gallery.models.DateTaken
 import java.io.*
 import java.text.SimpleDateFormat
@@ -666,7 +667,7 @@ fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, 
         newDegrees += 360
     }
 
-    if (oldPath == newPath && oldPath.isJpg()) {
+    if (oldPath == newPath && (if (config.useSuffixOneExtensions) oldPath.isJpg1() else oldPath.isJpg())) {
         if (tryRotateByExif(oldPath, newDegrees, showToasts, callback)) {
             return
         }
@@ -684,7 +685,7 @@ fun BaseSimpleActivity.saveRotatedImageToFile(oldPath: String, newPath: String, 
             }
 
             val oldLastModified = File(oldPath).lastModified()
-            if (oldPath.isJpg()) {
+            if (if (config.useSuffixOneExtensions) oldPath.isJpg1() else oldPath.isJpg()) {
                 copyFile(oldPath, tmpPath)
                 saveExifRotation(ExifInterface(tmpPath), newDegrees)
             } else {

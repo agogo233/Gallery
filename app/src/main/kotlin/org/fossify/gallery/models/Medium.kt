@@ -36,7 +36,7 @@ data class Medium(
         private const val serialVersionUID = -6553149366975655L
     }
 
-    fun isWebP() = name.isWebP()
+    fun isWebP(useSuffix1: Boolean = false) = if (useSuffix1) name.isWebP1() else name.isWebP()
 
     fun isGIF() = type == TYPE_GIFS
 
@@ -50,9 +50,9 @@ data class Medium(
 
     fun isPortrait() = type == TYPE_PORTRAITS
 
-    fun isApng() = name.isApng()
+    fun isApng(useSuffix1: Boolean = false) = if (useSuffix1) name.isApng1() else name.isApng()
 
-    fun isAvif() = name.endsWith(".avif", true) // switch to commons extension.
+    fun isAvif(useSuffix1: Boolean = false) = if (useSuffix1) name.isAvif1() else name.endsWith(".avif", true) // switch to commons extension.
 
     fun isHidden() = name.startsWith('.')
 

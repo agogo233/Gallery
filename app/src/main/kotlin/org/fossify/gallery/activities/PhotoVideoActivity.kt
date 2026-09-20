@@ -74,6 +74,11 @@ import org.fossify.gallery.helpers.TYPE_PORTRAITS
 import org.fossify.gallery.helpers.TYPE_RAWS
 import org.fossify.gallery.helpers.TYPE_SVGS
 import org.fossify.gallery.helpers.TYPE_VIDEOS
+import org.fossify.gallery.helpers.isGif1
+import org.fossify.gallery.helpers.isImage1
+import org.fossify.gallery.helpers.isRaw1
+import org.fossify.gallery.helpers.isSvg1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.models.Medium
 import java.io.File
 
@@ -189,7 +194,7 @@ open class PhotoVideoActivity : BaseViewerActivity(), ViewPagerFragment.Fragment
 
         var filename = getFilenameFromUri(mUri!!)
         mIsFromGallery = intent.getBooleanExtra(IS_FROM_GALLERY, false)
-        if (mIsFromGallery && filename.isVideoFast() && config.gestureVideoPlayer) {
+        if (mIsFromGallery && (if (config.useSuffixOneExtensions) filename.isVideo1() else filename.isVideoFast()) && config.gestureVideoPlayer) {
             launchGesturePlayer()
             return
         }
@@ -244,10 +249,10 @@ open class PhotoVideoActivity : BaseViewerActivity(), ViewPagerFragment.Fragment
         val file = File(mUri.toString())
         val intentType = intent.type ?: ""
         val type = when {
-            filename.isVideoFast() || intentType.startsWith("video/") -> TYPE_VIDEOS
-            filename.isGif() || intentType.equals("image/gif", true) -> TYPE_GIFS
-            filename.isRawFast() -> TYPE_RAWS
-            filename.isSvg() -> TYPE_SVGS
+            (if (config.useSuffixOneExtensions) filename.isVideo1() else filename.isVideoFast()) || intentType.startsWith("video/") -> TYPE_VIDEOS
+            (if (config.useSuffixOneExtensions) filename.isGif1() else filename.isGif()) || intentType.equals("image/gif", true) -> TYPE_GIFS
+            if (config.useSuffixOneExtensions) filename.isRaw1() else filename.isRawFast() -> TYPE_RAWS
+            if (config.useSuffixOneExtensions) filename.isSvg1() else filename.isSvg() -> TYPE_SVGS
             file.isPortrait() -> TYPE_PORTRAITS
             else -> TYPE_IMAGES
         }
@@ -345,11 +350,11 @@ open class PhotoVideoActivity : BaseViewerActivity(), ViewPagerFragment.Fragment
 
     private fun isFileTypeVisible(path: String): Boolean {
         val filter = config.filterMedia
-        return !(path.isImageFast() && filter and TYPE_IMAGES == 0 ||
-            path.isVideoFast() && filter and TYPE_VIDEOS == 0 ||
-            path.isGif() && filter and TYPE_GIFS == 0 ||
-            path.isRawFast() && filter and TYPE_RAWS == 0 ||
-            path.isSvg() && filter and TYPE_SVGS == 0 ||
+        return !((if (config.useSuffixOneExtensions) path.isImage1() else path.isImageFast()) && filter and TYPE_IMAGES == 0 ||
+            (if (config.useSuffixOneExtensions) path.isVideo1() else path.isVideoFast()) && filter and TYPE_VIDEOS == 0 ||
+            (if (config.useSuffixOneExtensions) path.isGif1() else path.isGif()) && filter and TYPE_GIFS == 0 ||
+            (if (config.useSuffixOneExtensions) path.isRaw1() else path.isRawFast()) && filter and TYPE_RAWS == 0 ||
+            (if (config.useSuffixOneExtensions) path.isSvg1() else path.isSvg()) && filter and TYPE_SVGS == 0 ||
             path.isPortrait() && filter and TYPE_PORTRAITS == 0)
     }
 

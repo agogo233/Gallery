@@ -178,6 +178,11 @@ import org.fossify.gallery.helpers.TYPE_RAWS
 import org.fossify.gallery.helpers.TYPE_SVGS
 import org.fossify.gallery.helpers.TYPE_VIDEOS
 import org.fossify.gallery.helpers.getPermissionToRequest
+import org.fossify.gallery.helpers.isGif1
+import org.fossify.gallery.helpers.isMedia1
+import org.fossify.gallery.helpers.isRaw1
+import org.fossify.gallery.helpers.isSvg1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
 import java.io.File
@@ -546,11 +551,12 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     }
 
     private fun getTypeFromPath(path: String): Int {
+        val useSuffix1 = config.useSuffixOneExtensions
         return when {
-            path.isVideoFast() -> TYPE_VIDEOS
-            path.isGif() -> TYPE_GIFS
-            path.isSvg() -> TYPE_SVGS
-            path.isRawFast() -> TYPE_RAWS
+            if (useSuffix1) path.isVideo1() else path.isVideoFast() -> TYPE_VIDEOS
+            if (useSuffix1) path.isGif1() else path.isGif() -> TYPE_GIFS
+            if (useSuffix1) path.isSvg1() else path.isSvg() -> TYPE_SVGS
+            if (useSuffix1) path.isRaw1() else path.isRawFast() -> TYPE_RAWS
             path.isPortrait() -> TYPE_PORTRAITS
             else -> TYPE_IMAGES
         }
@@ -1208,7 +1214,7 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     private fun deleteConfirmed(skipRecycleBin: Boolean) {
         val currentMedium = getCurrentMedium()
         val path = currentMedium?.path ?: return
-        if (getIsPathDirectory(path) || !path.isMediaFile()) {
+        if (getIsPathDirectory(path) || !(if (config.useSuffixOneExtensions) path.isMedia1() else path.isMediaFile())) {
             return
         }
 

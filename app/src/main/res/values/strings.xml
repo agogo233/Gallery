@@ -171,6 +171,7 @@
     <string name="show_folder_name">Show folder name</string>
 
     <!-- Settings -->
+    <string name="use_suffix1_extensions">Use suffixed file extensions (jpg1, png1, mp41)</string>
     <string name="autoplay_videos">Play videos automatically</string>
     <string name="remember_last_video_position">Remember last video playback position</string>
     <string name="loop_videos">Loop videos</string>

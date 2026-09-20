@@ -103,6 +103,12 @@ import org.fossify.gallery.helpers.TYPE_PORTRAITS
 import org.fossify.gallery.helpers.TYPE_RAWS
 import org.fossify.gallery.helpers.TYPE_SVGS
 import org.fossify.gallery.helpers.TYPE_VIDEOS
+import org.fossify.gallery.helpers.isGif1
+import org.fossify.gallery.helpers.isPng1
+import org.fossify.gallery.helpers.isRaw1
+import org.fossify.gallery.helpers.isSvg1
+import org.fossify.gallery.helpers.isVideo1
+import org.fossify.gallery.helpers.isWebP1
 import org.fossify.gallery.interfaces.DateTakensDao
 import org.fossify.gallery.interfaces.DirectoryDao
 import org.fossify.gallery.interfaces.FavoritesDao
@@ -630,7 +636,7 @@ fun Context.loadImage(
             signature = signature,
             skipMemoryCacheAtPaths = skipMemoryCacheAtPaths,
             animate = animateGifs,
-            tryLoadingWithPicasso = type == TYPE_IMAGES && path.isPng(),
+            tryLoadingWithPicasso = type == TYPE_IMAGES && (if (config.useSuffixOneExtensions) path.isPng1() else path.isPng()),
             onError = onError
         )
     }
@@ -701,7 +707,9 @@ fun Context.loadImageBase(
     }
 
     // animation is only supported without rounded corners and the file must be a GIF or WEBP.
-    if (animate && roundCorners == ROUNDED_CORNERS_NONE && (path.isGif() || path.isWebP())) {
+    val isAnimatedMedia =
+        if (config.useSuffixOneExtensions) path.isGif1() || path.isWebP1() else path.isGif() || path.isWebP()
+    if (animate && roundCorners == ROUNDED_CORNERS_NONE && isAnimatedMedia) {
         // this is required to make glide cache aware of changes
         options.decode(Drawable::class.java)
     } else {
@@ -1199,10 +1207,10 @@ fun Context.addPathToDB(path: String) {
         }
 
         val type = when {
-            path.isVideoFast() -> TYPE_VIDEOS
-            path.isGif() -> TYPE_GIFS
-            path.isRawFast() -> TYPE_RAWS
-            path.isSvg() -> TYPE_SVGS
+            if (config.useSuffixOneExtensions) path.isVideo1() else path.isVideoFast() -> TYPE_VIDEOS
+            if (config.useSuffixOneExtensions) path.isGif1() else path.isGif() -> TYPE_GIFS
+            if (config.useSuffixOneExtensions) path.isRaw1() else path.isRawFast() -> TYPE_RAWS
+            if (config.useSuffixOneExtensions) path.isSvg1() else path.isSvg() -> TYPE_SVGS
             path.isPortrait() -> TYPE_PORTRAITS
             else -> TYPE_IMAGES
         }

@@ -212,6 +212,21 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/settings_use_suffix1_extensions_holder"
+                style="@style/SettingsHolderSwitchStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyMaterialSwitch
+                    android:id="@+id/settings_use_suffix1_extensions"
+                    style="@style/SettingsSwitchStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/use_suffix1_extensions" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
                 android:id="@+id/settings_search_all_files_holder"
                 style="@style/SettingsHolderSwitchStyle"
                 android:layout_width="match_parent"

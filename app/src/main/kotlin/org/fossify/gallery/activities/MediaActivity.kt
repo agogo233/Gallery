@@ -106,6 +106,8 @@ import org.fossify.gallery.helpers.SKIP_AUTHENTICATION
 import org.fossify.gallery.helpers.SLIDESHOW_START_ON_ENTER
 import org.fossify.gallery.helpers.VIDEO_PLAYER_APP
 import org.fossify.gallery.helpers.VIDEO_PLAYER_SYSTEM
+import org.fossify.gallery.helpers.isMedia1
+import org.fossify.gallery.helpers.isVideo1
 import org.fossify.gallery.interfaces.MediaOperationsListener
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
@@ -966,7 +968,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
             finish()
         } else {
             mWasFullscreenViewOpen = true
-            if (!path.isVideoFast()) {
+            if (!(if (config.useSuffixOneExtensions) path.isVideo1() else path.isVideoFast())) {
                 openInViewPager(path)
                 return
             }
@@ -1036,7 +1038,7 @@ class MediaActivity : SimpleActivity(), MediaOperationsListener {
 
     override fun tryDeleteFiles(fileDirItems: ArrayList<FileDirItem>, skipRecycleBin: Boolean) {
         val filtered = fileDirItems
-            .filter { !getIsPathDirectory(it.path) && it.path.isMediaFile() } as ArrayList
+            .filter { !getIsPathDirectory(it.path) && (if (config.useSuffixOneExtensions) it.path.isMedia1() else it.path.isMediaFile()) } as ArrayList
         if (filtered.isEmpty()) {
             return
         }

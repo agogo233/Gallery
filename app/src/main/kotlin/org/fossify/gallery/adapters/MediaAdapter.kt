@@ -88,6 +88,7 @@ import org.fossify.gallery.helpers.SHOW_FAVORITES
 import org.fossify.gallery.helpers.SHOW_RECYCLE_BIN
 import org.fossify.gallery.helpers.TYPE_GIFS
 import org.fossify.gallery.helpers.TYPE_RAWS
+import org.fossify.gallery.helpers.isImage1
 import org.fossify.gallery.interfaces.MediaOperationsListener
 import org.fossify.gallery.models.Medium
 import org.fossify.gallery.models.ThumbnailItem
@@ -435,7 +436,7 @@ class MediaAdapter(
     }
 
     private fun rotateSelection(degrees: Int) {
-        val paths = getSelectedPaths().filter { it.isImageFast() }
+        val paths = getSelectedPaths().filter { if (config.useSuffixOneExtensions) it.isImage1() else it.isImageFast() }
 
         if (paths.any { activity.needsStupidWritePermissions(it) }) {
             activity.handleSAFDialog(paths.first { activity.needsStupidWritePermissions(it) }) {
