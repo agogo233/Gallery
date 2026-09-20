@@ -553,10 +553,10 @@ class ViewPagerActivity : BaseViewerActivity(), ViewPager.OnPageChangeListener, 
     private fun getTypeFromPath(path: String): Int {
         val useSuffix1 = config.useSuffixOneExtensions
         return when {
-            if (useSuffix1) path.isVideo1() else path.isVideoFast() -> TYPE_VIDEOS
-            if (useSuffix1) path.isGif1() else path.isGif() -> TYPE_GIFS
-            if (useSuffix1) path.isSvg1() else path.isSvg() -> TYPE_SVGS
-            if (useSuffix1) path.isRaw1() else path.isRawFast() -> TYPE_RAWS
+            (if (useSuffix1) path.isVideo1() else path.isVideoFast()) -> TYPE_VIDEOS
+            (if (useSuffix1) path.isGif1() else path.isGif()) -> TYPE_GIFS
+            (if (useSuffix1) path.isSvg1() else path.isSvg()) -> TYPE_SVGS
+            (if (useSuffix1) path.isRaw1() else path.isRawFast()) -> TYPE_RAWS
             path.isPortrait() -> TYPE_PORTRAITS
             else -> TYPE_IMAGES
         }

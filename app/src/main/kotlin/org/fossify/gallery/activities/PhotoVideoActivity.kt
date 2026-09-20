@@ -248,11 +248,12 @@ open class PhotoVideoActivity : BaseViewerActivity(), ViewPagerFragment.Fragment
         val bundle = Bundle()
         val file = File(mUri.toString())
         val intentType = intent.type ?: ""
+        val useSuffix1 = config.useSuffixOneExtensions
         val type = when {
-            (if (config.useSuffixOneExtensions) filename.isVideo1() else filename.isVideoFast()) || intentType.startsWith("video/") -> TYPE_VIDEOS
-            (if (config.useSuffixOneExtensions) filename.isGif1() else filename.isGif()) || intentType.equals("image/gif", true) -> TYPE_GIFS
-            if (config.useSuffixOneExtensions) filename.isRaw1() else filename.isRawFast() -> TYPE_RAWS
-            if (config.useSuffixOneExtensions) filename.isSvg1() else filename.isSvg() -> TYPE_SVGS
+            (if (useSuffix1) filename.isVideo1() else filename.isVideoFast()) || intentType.startsWith("video/") -> TYPE_VIDEOS
+            (if (useSuffix1) filename.isGif1() else filename.isGif()) || intentType.equals("image/gif", true) -> TYPE_GIFS
+            (if (useSuffix1) filename.isRaw1() else filename.isRawFast()) -> TYPE_RAWS
+            (if (useSuffix1) filename.isSvg1() else filename.isSvg()) -> TYPE_SVGS
             file.isPortrait() -> TYPE_PORTRAITS
             else -> TYPE_IMAGES
         }
