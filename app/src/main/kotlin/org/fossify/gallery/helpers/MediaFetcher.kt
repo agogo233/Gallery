@@ -180,7 +180,7 @@ class MediaFetcher(val context: Context) {
     private fun getSelectionQuery(filterMedia: Int, useSuffix1: Boolean): String {
         val query = StringBuilder()
         if (filterMedia and TYPE_IMAGES != 0) {
-            (if (useSuffix1) imageExtensions1 else photoExtensions).forEach {
+            (if (useSuffix1) imageExtensions1 else photoExtensions.toList()).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
@@ -191,7 +191,7 @@ class MediaFetcher(val context: Context) {
         }
 
         if (filterMedia and TYPE_VIDEOS != 0) {
-            (if (useSuffix1) videoExtensions1 else videoExtensions).forEach {
+            (if (useSuffix1) videoExtensions1 else videoExtensions.toList()).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
@@ -201,7 +201,7 @@ class MediaFetcher(val context: Context) {
         }
 
         if (filterMedia and TYPE_RAWS != 0) {
-            (if (useSuffix1) rawExtensions1 else rawExtensions).forEach {
+            (if (useSuffix1) rawExtensions1 else rawExtensions.toList()).forEach {
                 query.append("${Images.Media.DATA} LIKE ? OR ")
             }
         }
